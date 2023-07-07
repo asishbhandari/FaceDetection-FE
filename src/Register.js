@@ -24,7 +24,7 @@ class Register extends react.Component{
 
     onRegisterSubmit=()=>{
         // console.log(JSON.stringify(this.state))
-        fetch('https://facedetection-be.netlify.app/registor', {
+        fetch('https://facedetectionbe.onrender.com/registor', {
             method: 'post',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify({

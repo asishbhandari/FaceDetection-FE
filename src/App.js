@@ -148,7 +148,7 @@ class App extends Component {
         .then(response => response.json())
         .then(result => {
           if(result){
-            fetch('https://facedetection-be.netlify.app/image', {
+            fetch('https://facedetectionbe.onrender.com/image', {
             method: 'put',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
