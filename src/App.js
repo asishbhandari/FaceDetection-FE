@@ -1,5 +1,5 @@
 import './App.css';
-import { Component } from 'react';
+// import { Component } from 'react';
 import Navigation from "./Navigation";
 import Rank from "./Rank";
 import Logo from "./Logo";
@@ -8,6 +8,10 @@ import FaceRecognition from "./FaceRecognition";
 import ParticlesBg from 'particles-bg';
 import SignIn from "./SignIn";
 import Register from "./Register";
+import { useDispatch, useSelector } from "react-redux";
+import {getIsSignedIn, getRoute, getBox, getImageUrl, getInput} from './redux part/initialUserSlice';
+import { loadUser, userEntries } from './redux part/userSlice';
+
 
 const clarifairequestoption=(imageurl)=>{
   // Your PAT (Personal Access Token) can be found in the portal under Authentification
@@ -48,35 +52,43 @@ const requestOptions = {
 return requestOptions;
 }
 
-const initialState ={
-        input:" ",
-        ImageUrl: " ",
-        box:[],
-        route:"signin",
-        issignedin: false,
-        user: {
-          id:'',
-          name:'',
-          email:'',
-          password:'',
-          entries:'',
-          joined:''
-        }
-}
-class App extends Component {
-    constructor(){
-      super();
-      this.state={initialState}
-    }
-  loadUser=(data)=>{
-    this.setState({user:{
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      entries: data.entries,
-      joined: data.joined
-    }})
+// const initialState ={
+//         input:" ",
+//         ImageUrl: " ",
+//         box:[],
+//         route:"signin",
+//         issignedin: false,
+//         user: {
+//           id:'',
+//           name:'',
+//           email:'',
+//           password:'',
+//           entries:'',
+//           joined:''
+//         }
+// }
+function App (){
+    // constructor(){
+    //   super();
+    //   this.state={initialState}
+    // }
+  
+  const dispatch= useDispatch();
+  const user= useSelector(state=> state.users.user);
+  const initial= useSelector(state=> state.initialUser.initial) 
+
+  const loadUserin =(data)=>{
+    dispatch(loadUser(data))
   }
+  // loadUser=(data)=>{
+  //   this.setState({user:{
+  //     id: data.id,
+  //     name: data.name,
+  //     email: data.email,
+  //     entries: data.entries,
+  //     joined: data.joined
+  //   }})
+  // }
 // --> to check our connection with the server
   // componentDidMount(){
   //   fetch('http://localhost:3001')
@@ -86,11 +98,14 @@ class App extends Component {
   // can also use mode: 'no-cors' insted of installing cors npm for testing purpose
   // fetch('http://localhost:3001/',{ mode: 'no-cors'}).then(response=>response.json()).then(console.log)
 
-  onchangeinput=(event)=>{
-    this.setState({input: event.target.value});
+  // onchangeinput=(event)=>{
+  //   this.setState({input: event.target.value});
+  // }
+  const onchangeinput=(event)=>{
+    dispatch(getInput(event.target.value))
   }
 
-  calulatefacelocation=(data)=>{
+  const calulatefacelocation=(data)=>{
     // console.log(data.outputs[0].data.regions)
     // const facelocation=data.outputs[0].data.regions[0].region_info.bounding_box;
     // console.log(data);
@@ -126,68 +141,74 @@ class App extends Component {
     return boxlocations;
   }
 
-  onroutechange=(rout)=>{
-    if(rout=== "home"){this.setState({issignedin:true})}
-    else{this.setState(initialState)}
-    this.setState({route:rout})
+  // onroutechange=(rout)=>{
+  //   if(rout=== "home"){this.setState({issignedin:true})}
+  //   else{this.setState(initialState)}
+  //   this.setState({route:rout})
+  // }
+  const onroutechange=(rout)=>{
+    if(rout === 'home'){dispatch(getIsSignedIn(true))}
+    else{dispatch(getIsSignedIn(false))}
+    dispatch(getRoute(rout))
   }
   
-  displayfacebox=(box)=>{
-    this.setState({box:box})
-    // console.log("displayfacebox"+box[0].rightcol)
+  // displayfacebox=(box)=>{
+  //   this.setState({box:box})
+  //   // console.log("displayfacebox"+box[0].rightcol)
+  // }
+  const displayfacebox=(box)=>{
+    dispatch(getBox(box))
   }
-  onclickbutton=()=>{
+  const onclickbutton=()=>{
     let facein =false;
-    if(this.state.input === ' ' || this.state.input === ''){
+    if(initial.input === ' ' || initial.input === ''){
       facein=false
-      this.setState({ImageUrl: this.state.input})
+      dispatch(getImageUrl(initial.input)) // this.setState({ImageUrl: this.state.input})
     }else{facein= true}
     if(facein === true){
-     this.setState({ImageUrl: this.state.input})
-     fetch("https://api.clarifai.com/v2/models/face-detection/outputs", clarifairequestoption(this.state.input))
+      dispatch(getImageUrl(initial.input)) //  this.setState({ImageUrl: this.state.input})
+     fetch("https://api.clarifai.com/v2/models/face-detection/outputs", clarifairequestoption(initial.input))
         .then(response => response.json())
         .then(result => {
           if(result){
-            fetch('https://facedetectionbe.onrender.com/image', {
+            fetch('http://localhost:3001/image', {
             method: 'put',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
-                id: this.state.user.id
+                id: user.id
                 })
             }).then(response => response.json())
             .then(count => {
-              this.setState(Object.assign(this.state.user, {entries: count}))
+              dispatch(userEntries(count)) // this.setState(Object.assign(this.state.user, {entries: count}))
             })
             }
-            this.displayfacebox(this.calulatefacelocation(result))
+            displayfacebox(calulatefacelocation(result))
         })
         .catch(error => console.log('error', error));
       }
     // this.setState({user:{entries:}})
     
   }
-  render(){
     return(
     <div className="App">
       <ParticlesBg  type="color" bg={true} />
-      <Navigation issignedin={this.state.issignedin} onroutechange={this.onroutechange} />
-      { this.state.route==="home"?
+      <Navigation issignedin={initial.issignedin} onroutechange={onroutechange} />
+      { initial.route==="home"?
       <div>
         <Logo />
-        <Rank name={this.state.user.name} entries={this.state.user.entries}/>
-        <ImageLinkForm onchangeinput={this.onchangeinput} onclickbutton={this.onclickbutton}/>
-        <FaceRecognition ImageUrl={this.state.ImageUrl} box={this.state.box}/>
+        <Rank name={user.name} entries={user.entries}/>
+        <ImageLinkForm onchangeinput={onchangeinput} onclickbutton={onclickbutton}/>
+        <FaceRecognition ImageUrl={initial.ImageUrl} box={initial.box}/>
       </div>:
       <div>
-          {this.state.route==="signin"?
-          <SignIn loadUser={this.loadUser} onroutechange={this.onroutechange} />:
-          <Register onroutechange={this.onroutechange}/>}
+          {initial.route==="register"?
+          <Register onroutechange={onroutechange}/>:
+          <SignIn loadUserin={loadUserin} onroutechange={onroutechange} />
+          }
       </div>
-        
       } 
     </div>
   );
-  }
       
   
 }

@@ -24,7 +24,7 @@ class Register extends react.Component{
 
     onRegisterSubmit=()=>{
         // console.log(JSON.stringify(this.state))
-        fetch('https://facedetectionbe.onrender.com/registor', {
+        fetch('http://localhost:3001/registor', {
             method: 'post',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify({

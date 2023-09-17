@@ -54,7 +54,7 @@ class SignIn extends React.Component{
 
     onSubmitSignin = () => {
         // console.log(this.state)
-        fetch('https://facedetectionbe.onrender.com/signin',{
+        fetch('http://localhost:3001/signin',{
             method:'post',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
@@ -65,12 +65,12 @@ class SignIn extends React.Component{
         .then(response => response.json())
         .then(data => {
             // console.log(data)
-            if(data === "unable to fr"){
+            if(data === "unable to fetch user"){
                 alert("email and password does not match")
                 
             }
             else{
-                this.props.loadUser(data);
+                this.props.loadUserin(data);
                 this.props.onroutechange('home')
             }
         })
