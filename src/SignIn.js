@@ -54,7 +54,7 @@ class SignIn extends React.Component{
 
     onSubmitSignin = () => {
         // console.log(this.state)
-        fetch('https://facedetectionbe.onrender.com/signin',{
+        fetch(`https://facedetectionbe.onrender.com/signin`,{
             method:'post',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
@@ -73,12 +73,13 @@ class SignIn extends React.Component{
                 this.props.loadUserin(data);
                 this.props.onroutechange('home')
             }
-        })
+        }).catch(err => console.log(err))
         
     }
 
     render(){
         const { onroutechange }= this.props;
+        // console.log("base url",process.env.BASE_URL)
         return( 
             <div>
                 <div className="sans-serif w-90 white mw6 center relative cover bg-top mt2 shadow-3">

@@ -28,9 +28,14 @@ const initialUserSlice= createSlice({
         },
         getIsSignedIn(state, action){
             state.initial.issignedin= action.payload
+        },
+        setLogout(state){
+            state.initial.input = ""
+            state.initial.ImageUrl = ""
+            state.initial.box = []
         }
     }
 })
 
-export const {getIsSignedIn, getRoute, getBox, getImageUrl, getInput}= initialUserSlice.actions;
+export const {getIsSignedIn, getRoute, getBox, getImageUrl, getInput, setLogout}= initialUserSlice.actions;
 export default initialUserSlice.reducer;
